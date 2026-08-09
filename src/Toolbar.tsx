@@ -57,7 +57,7 @@ function ToolbarButton({
       title={title}
       onClick={onClick}
       disabled={disabled}
-      className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+      className="shrink-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
     >
       {children}
     </button>
@@ -92,69 +92,76 @@ export default function Toolbar({ stageRef }: ToolbarProps) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white px-4 py-3">
-      <select
-        value={deskTypeId}
-        onChange={(e) => setDeskTypeId(e.target.value)}
-        title="机の種類"
-        className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm font-medium text-slate-700 shadow-sm"
-      >
-        {DESK_TYPES.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.label}
-          </option>
-        ))}
-      </select>
-      <ToolbarButton onClick={() => addDesk(deskTypeId)} title="机を追加">
-        + 机を追加
-      </ToolbarButton>
-      <ToolbarButton onClick={duplicateSelected} disabled={!selectedId} title="Ctrl+D">
-        複製
-      </ToolbarButton>
-      <ToolbarButton onClick={rotateSelected} disabled={!selectedId} title="90度回転">
-        回転
-      </ToolbarButton>
-      <ToolbarButton onClick={deleteSelected} disabled={!selectedId} title="Delete">
-        削除
-      </ToolbarButton>
+    <div className="border-b border-slate-200 bg-white">
+      <div className="flex items-center gap-2 overflow-x-auto px-3 py-2 sm:flex-wrap sm:overflow-visible sm:px-4 sm:py-3">
+        <select
+          value={deskTypeId}
+          onChange={(e) => setDeskTypeId(e.target.value)}
+          title="机の種類"
+          className="shrink-0 rounded-md border border-slate-300 bg-white px-2 py-2 text-sm font-medium text-slate-700 shadow-sm sm:py-1.5"
+        >
+          {DESK_TYPES.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+        <ToolbarButton onClick={() => addDesk(deskTypeId)} title="机を追加">
+          + 机を追加
+        </ToolbarButton>
+        <ToolbarButton onClick={duplicateSelected} disabled={!selectedId} title="Ctrl+D">
+          複製
+        </ToolbarButton>
+        <ToolbarButton onClick={rotateSelected} disabled={!selectedId} title="90度回転">
+          回転
+        </ToolbarButton>
+        <ToolbarButton onClick={deleteSelected} disabled={!selectedId} title="Delete">
+          削除
+        </ToolbarButton>
 
-      <span className="mx-1 h-6 w-px bg-slate-200" />
+        <span className="mx-1 h-6 w-px shrink-0 bg-slate-200" />
 
-      <ToolbarButton onClick={undo} disabled={!canUndo} title="Ctrl+Z">
-        元に戻す
-      </ToolbarButton>
-      <ToolbarButton onClick={redo} disabled={!canRedo} title="Ctrl+Shift+Z">
-        やり直し
-      </ToolbarButton>
+        <ToolbarButton onClick={undo} disabled={!canUndo} title="Ctrl+Z">
+          元に戻す
+        </ToolbarButton>
+        <ToolbarButton onClick={redo} disabled={!canRedo} title="Ctrl+Shift+Z">
+          やり直し
+        </ToolbarButton>
 
-      <span className="mx-1 h-6 w-px bg-slate-200" />
+        <span className="mx-1 h-6 w-px shrink-0 bg-slate-200" />
 
-      <ToolbarButton onClick={() => exportPng(stageRef)} title="PNG画像として保存">
-        画像出力
-      </ToolbarButton>
-      <ToolbarButton
-        title="レイアウトを保存"
-        onClick={() => {
-          saveToStorage()
-          flash('保存しました')
-        }}
-      >
-        保存
-      </ToolbarButton>
-      <ToolbarButton
-        title="レイアウトを読込"
-        onClick={() => {
-          const ok = loadFromStorage()
-          flash(ok ? '読み込みました' : '保存データがありません')
-        }}
-      >
-        読込
-      </ToolbarButton>
+        <ToolbarButton onClick={() => exportPng(stageRef)} title="PNG画像として保存">
+          画像出力
+        </ToolbarButton>
+        <ToolbarButton
+          title="レイアウトを保存"
+          onClick={() => {
+            saveToStorage()
+            flash('保存しました')
+          }}
+        >
+          保存
+        </ToolbarButton>
+        <ToolbarButton
+          title="レイアウトを読込"
+          onClick={() => {
+            const ok = loadFromStorage()
+            flash(ok ? '読み込みました' : '保存データがありません')
+          }}
+        >
+          読込
+        </ToolbarButton>
 
-      <span className="ml-auto flex items-center gap-3 text-sm text-slate-600">
-        {message && <span className="text-emerald-600">{message}</span>}
-        <span className="font-medium text-slate-800">机: {deskCount} 台</span>
-      </span>
+        <span className="ml-auto hidden shrink-0 items-center gap-3 text-sm text-slate-600 sm:flex">
+          {message && <span className="text-emerald-600">{message}</span>}
+          <span className="font-medium text-slate-800">机: {deskCount} 台</span>
+        </span>
+      </div>
+
+      <div className="flex items-center justify-between border-t border-slate-100 px-3 py-1.5 text-sm text-slate-600 sm:hidden">
+        <span className="text-emerald-600">{message}</span>
+        <span className="ml-auto font-medium text-slate-800">机: {deskCount} 台</span>
+      </div>
     </div>
   )
 }
