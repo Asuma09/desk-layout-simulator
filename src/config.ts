@@ -24,13 +24,14 @@ export type SurroundingRoom = {
 
 export const SURROUNDING_ROOMS_M: SurroundingRoom[] = [
   {
-    id: 'corridor-left',
-    label: '廊下',
+    id: 'room-left',
+    label: 'UNICES',
+    // 縦（高さ）はメインルーム（白）と同じ、横（幅）は元の廊下と同じ幅
     points: [
-      { x: -3.0, y: -1.5 },
-      { x: 0, y: -1.5 },
-      { x: 0, y: ROOM.depthM + 2.0 },
-      { x: -3.0, y: ROOM.depthM + 2.0 },
+      { x: -3.0, y: 0 },
+      { x: 0, y: 0 },
+      { x: 0, y: ROOM.depthM },
+      { x: -3.0, y: ROOM.depthM },
     ],
   },
   {
