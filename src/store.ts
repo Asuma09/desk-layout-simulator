@@ -1,7 +1,9 @@
 import { create } from 'zustand'
 import {
   DEFAULT_DESK_TYPE_ID,
+  DEFAULT_MAX_DESK_COUNTS,
   GRID_STEP_PX,
+  MAX_DESK_COUNT_LIMIT,
   ROOM_PX,
   STORAGE_KEY,
   getDeskTypePx,
@@ -18,13 +20,15 @@ export type Desk = {
 type LayoutState = {
   desks: Desk[]
   selectedId: string | null
+  maxDeskCounts: Record<string, number>
   past: Desk[][]
   future: Desk[][]
   dragSnapshot: Desk[] | null
 
   selectDesk: (id: string | null) => void
-  addDesk: (typeId: string) => void
-  duplicateSelected: () => void
+  setMaxDeskCount: (typeId: string, count: number) => void
+  addDesk: (typeId: string) => boolean
+  duplicateSelected: () => boolean
   deleteSelected: () => void
   rotateSelected: () => void
   beginDrag: () => void
@@ -55,14 +59,23 @@ function commit(
 export const useLayoutStore = create<LayoutState>((set, get) => ({
   desks: [],
   selectedId: null,
+  maxDeskCounts: { ...DEFAULT_MAX_DESK_COUNTS },
   past: [],
   future: [],
   dragSnapshot: null,
 
   selectDesk: (id) => set({ selectedId: id }),
 
+  setMaxDeskCount: (typeId, count) => {
+    const clamped = Math.min(Math.max(Math.round(count) || 1, 1), MAX_DESK_COUNT_LIMIT)
+    set((s) => ({ maxDeskCounts: { ...s.maxDeskCounts, [typeId]: clamped } }))
+  },
+
   addDesk: (typeId) => {
-    const { desks } = get()
+    const { desks, maxDeskCounts } = get()
+    const limit = maxDeskCounts[typeId] ?? DEFAULT_MAX_DESK_COUNTS[typeId] ?? MAX_DESK_COUNT_LIMIT
+    const countOfType = desks.filter((d) => d.typeId === typeId).length
+    if (countOfType >= limit) return false
     const deskPx = getDeskTypePx(typeId)
     const count = desks.length
     const cols = Math.max(1, Math.floor(ROOM_PX.width / (deskPx.width + GRID_STEP_PX)))
@@ -80,12 +93,19 @@ export const useLayoutStore = create<LayoutState>((set, get) => ({
     }
     commit(set, [...desks, desk])
     set({ selectedId: desk.id })
+    return true
   },
 
   duplicateSelected: () => {
-    const { desks, selectedId } = get()
+    const { desks, selectedId, maxDeskCounts } = get()
     const original = desks.find((d) => d.id === selectedId)
-    if (!original) return
+    if (!original) return false
+    const limit =
+      maxDeskCounts[original.typeId] ??
+      DEFAULT_MAX_DESK_COUNTS[original.typeId] ??
+      MAX_DESK_COUNT_LIMIT
+    const countOfType = desks.filter((d) => d.typeId === original.typeId).length
+    if (countOfType >= limit) return false
     const clone: Desk = {
       ...original,
       id: crypto.randomUUID(),
@@ -94,6 +114,7 @@ export const useLayoutStore = create<LayoutState>((set, get) => ({
     }
     commit(set, [...desks, clone])
     set({ selectedId: clone.id })
+    return true
   },
 
   deleteSelected: () => {
@@ -163,18 +184,27 @@ export const useLayoutStore = create<LayoutState>((set, get) => ({
   },
 
   saveToStorage: () => {
-    const { desks } = get()
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(desks))
+    const { desks, maxDeskCounts } = get()
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ desks, maxDeskCounts }))
   },
 
   loadFromStorage: () => {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return false
     try {
-      const parsed = JSON.parse(raw) as Desk[]
-      const desks = parsed.map((d) => ({ ...d, typeId: d.typeId ?? DEFAULT_DESK_TYPE_ID }))
+      type StoredV1 = Desk[]
+      type StoredV2 = { desks: Desk[]; maxDeskCount?: number }
+      type StoredV3 = { desks: Desk[]; maxDeskCounts?: Record<string, number> }
+      const parsed = JSON.parse(raw) as StoredV1 | StoredV2 | StoredV3
+      // 旧形式（机の配列のみ／全体上限のみ）と新形式（種類ごとの上限）のすべてに対応
+      const rawDesks = Array.isArray(parsed) ? parsed : parsed.desks
+      const desks = rawDesks.map((d) => ({ ...d, typeId: d.typeId ?? DEFAULT_DESK_TYPE_ID }))
+      let maxDeskCounts = { ...DEFAULT_MAX_DESK_COUNTS }
+      if (!Array.isArray(parsed) && parsed && 'maxDeskCounts' in parsed && parsed.maxDeskCounts) {
+        maxDeskCounts = { ...maxDeskCounts, ...parsed.maxDeskCounts }
+      }
       commit(set, desks)
-      set({ selectedId: null })
+      set({ selectedId: null, maxDeskCounts })
       return true
     } catch {
       return false

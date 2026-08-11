@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { Stage, Layer, Rect, Line, Text, Group, Transformer } from 'react-konva'
+import { Stage, Layer, Rect, Line, Text, Group, Circle, Transformer } from 'react-konva'
 import type Konva from 'konva'
 import type { KonvaEventObject } from 'konva/lib/Node'
-import { FIXED_ELEMENTS_PX, ROOM_BOUNDS_PX, ROOM_POLYGON_PX, getDeskTypePx } from './config'
+import {
+  FIXED_ELEMENTS_PX,
+  OUTLETS_PX,
+  ROOM_BOUNDS_PX,
+  ROOM_POLYGON_PX,
+  SURROUNDING_ROOMS_PX,
+  getDeskTypePx,
+} from './config'
 import { isRectInPolygon } from './geometry'
 import { useLayoutStore } from './store'
 
@@ -44,6 +51,63 @@ function touchDistance(t1: Touch, t2: Touch): number {
 
 function touchCenter(t1: Touch, t2: Touch): { x: number; y: number } {
   return { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 }
+}
+
+function SurroundingRooms() {
+  return (
+    <>
+      {SURROUNDING_ROOMS_PX.map((room) => {
+        const xs = room.points.map((p) => p.x)
+        const ys = room.points.map((p) => p.y)
+        const cx = (Math.min(...xs) + Math.max(...xs)) / 2
+        const cy = (Math.min(...ys) + Math.max(...ys)) / 2
+        return (
+          <Group key={room.id} listening={false}>
+            <Line
+              points={room.points.flatMap((p) => [p.x, p.y])}
+              closed
+              fill="#f1f5f9"
+              stroke="#cbd5e1"
+              strokeWidth={1.5}
+              dash={[6, 4]}
+            />
+            <Text
+              text={room.label}
+              x={cx - 40}
+              y={cy - 7}
+              width={80}
+              align="center"
+              fontSize={12}
+              fill="#94a3b8"
+            />
+          </Group>
+        )
+      })}
+    </>
+  )
+}
+
+function OutletMarkers() {
+  return (
+    <>
+      {OUTLETS_PX.map((o) => (
+        <Group key={o.id} x={o.x} y={o.y} listening={false}>
+          <Circle radius={9} fill="#fbbf24" stroke="#b45309" strokeWidth={1.5} />
+          <Rect x={-3.5} y={-1} width={2.5} height={2} fill="#b45309" />
+          <Rect x={1} y={-1} width={2.5} height={2} fill="#b45309" />
+          <Text
+            text={o.label}
+            x={-30}
+            y={12}
+            width={60}
+            align="center"
+            fontSize={9}
+            fill="#92400e"
+          />
+        </Group>
+      ))}
+    </>
+  )
 }
 
 function FixedElements() {
@@ -221,6 +285,7 @@ export default function Canvas({ stageRef }: CanvasProps) {
         onTap={handleStageClick}
       >
         <Layer>
+          <SurroundingRooms />
           <Line
             points={ROOM_POLYGON_PX.flatMap((p) => [p.x, p.y])}
             closed
@@ -229,6 +294,7 @@ export default function Canvas({ stageRef }: CanvasProps) {
             strokeWidth={2}
           />
           <FixedElements />
+          <OutletMarkers />
 
           {desks.map((desk) => {
             const deskPx = getDeskTypePx(desk.typeId)
