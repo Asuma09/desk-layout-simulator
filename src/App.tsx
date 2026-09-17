@@ -126,37 +126,37 @@ function App() {
 
   return (
     <div className="flex h-screen w-screen flex-col">
-      <header className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-2">
+      <header className="flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-2">
         <button
           type="button"
           onClick={handleBackToHome}
-          className="shrink-0 text-sm font-medium text-blue-600 hover:underline"
+          className="shrink-0 text-sm font-medium text-orange-700 hover:underline"
         >
           ← ホーム
         </button>
-        <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-slate-800">
+        <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-stone-800">
           {currentEvent?.name || '会議室 机レイアウト シミュレーター'}
         </h1>
         {currentEvent && (
           <button
             type="button"
             onClick={handleIssueShareUrl}
-            className="shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+            className="shrink-0 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-50"
           >
             共有URLを発行する
           </button>
         )}
       </header>
       {shareUrl && (
-        <div className="flex flex-col gap-1 border-b border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-800 sm:flex-row sm:items-center sm:gap-3">
+        <div className="flex flex-col gap-1 border-b border-orange-200 bg-orange-50 px-4 py-2 text-sm text-orange-800 sm:flex-row sm:items-center sm:gap-3">
           <span className="shrink-0 font-medium">{shareCopyStatus}</span>
-          <code className="min-w-0 flex-1 truncate rounded bg-white px-2 py-1 text-xs text-slate-700">
+          <code className="min-w-0 flex-1 truncate rounded bg-white px-2 py-1 text-xs text-stone-700">
             {shareUrl}
           </code>
           <button
             type="button"
             onClick={() => setShareUrl(null)}
-            className="shrink-0 self-start text-xs font-medium text-blue-600 hover:underline sm:self-auto"
+            className="shrink-0 self-start text-xs font-medium text-orange-700 hover:underline sm:self-auto"
           >
             閉じる
           </button>

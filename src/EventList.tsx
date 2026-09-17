@@ -34,16 +34,16 @@ export default function EventList({ onBack, onOpenEvent }: EventListProps) {
   const sortedEvents = [...events].sort((a, b) => b.updatedAt - a.updatedAt)
 
   return (
-    <div className="flex h-full w-full flex-col bg-slate-50">
-      <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3">
+    <div className="flex h-full w-full flex-col bg-orange-50/40">
+      <div className="flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
         <button
           type="button"
           onClick={onBack}
-          className="text-sm font-medium text-blue-600 hover:underline"
+          className="text-sm font-medium text-orange-700 hover:underline"
         >
           ← ホームに戻る
         </button>
-        <h1 className="text-base font-semibold text-slate-800">イベント一覧</h1>
+        <h1 className="text-base font-semibold text-stone-800">イベント一覧</h1>
       </div>
       <div className="flex-1 overflow-y-auto p-4">
         {error && (
@@ -52,9 +52,9 @@ export default function EventList({ onBack, onOpenEvent }: EventListProps) {
           </p>
         )}
         {loading && events.length === 0 ? (
-          <p className="text-sm text-slate-500">読み込み中...</p>
+          <p className="text-sm text-stone-500">読み込み中...</p>
         ) : sortedEvents.length === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-stone-500">
             イベントがまだありません。「イベントを作成する」から作成してください。
           </p>
         ) : (
@@ -62,15 +62,15 @@ export default function EventList({ onBack, onOpenEvent }: EventListProps) {
             {sortedEvents.map((event) => (
               <li
                 key={event.id}
-                className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-white px-4 py-3 shadow-sm"
+                className="flex items-center justify-between gap-3 rounded-md border border-stone-200 bg-white px-4 py-3 shadow-sm"
               >
                 <button
                   type="button"
                   onClick={() => onOpenEvent(event)}
                   className="flex-1 text-left"
                 >
-                  <div className="font-medium text-slate-800">{event.name}</div>
-                  <div className="text-xs text-slate-500">
+                  <div className="font-medium text-stone-800">{event.name}</div>
+                  <div className="text-xs text-stone-500">
                     {event.date ? `開催日: ${event.date} ・ ` : ''}
                     机 {event.desks.length}台 ・ 更新: {new Date(event.updatedAt).toLocaleString('ja-JP')}
                   </div>

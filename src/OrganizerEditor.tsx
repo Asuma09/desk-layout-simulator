@@ -83,16 +83,16 @@ export default function OrganizerEditor({ shareToken }: OrganizerEditorProps) {
 
   if (status === 'loading') {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
-        <p className="text-sm text-slate-500">読み込み中...</p>
+      <div className="flex h-screen w-screen items-center justify-center bg-orange-50/40">
+        <p className="text-sm text-stone-500">読み込み中...</p>
       </div>
     )
   }
 
   if (status === 'not-found') {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-slate-50 px-4">
-        <p className="text-center text-sm text-slate-500">
+      <div className="flex h-screen w-screen items-center justify-center bg-orange-50/40 px-4">
+        <p className="text-center text-sm text-stone-500">
           このURLは無効です。イベント管理者に共有URLを確認してください。
         </p>
       </div>
@@ -101,8 +101,8 @@ export default function OrganizerEditor({ shareToken }: OrganizerEditorProps) {
 
   return (
     <div className="flex h-screen w-screen flex-col">
-      <header className="border-b border-slate-200 bg-white px-4 py-2">
-        <h1 className="truncate text-base font-semibold text-slate-800">
+      <header className="border-b border-stone-200 bg-white px-4 py-2">
+        <h1 className="truncate text-base font-semibold text-stone-800">
           {event?.name} の机レイアウト編集
         </h1>
       </header>

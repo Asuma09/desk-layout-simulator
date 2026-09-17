@@ -53,8 +53,8 @@ function SurroundingRooms() {
             <Line
               points={room.points.flatMap((p) => [p.x, p.y])}
               closed
-              fill="#f1f5f9"
-              stroke="#cbd5e1"
+              fill="#f5f0e6"
+              stroke="#d3c4ad"
               strokeWidth={1.5}
               dash={[6, 4]}
             />
@@ -65,7 +65,7 @@ function SurroundingRooms() {
               width={80}
               align="center"
               fontSize={12}
-              fill="#94a3b8"
+              fill="#a89880"
             />
           </Group>
         )
@@ -105,8 +105,8 @@ function FixedElements() {
           <Rect
             width={el.width}
             height={el.height}
-            fill="#e2e8f0"
-            stroke="#64748b"
+            fill="#e7ded0"
+            stroke="#8a7a63"
             strokeWidth={1.5}
             cornerRadius={2}
           />
@@ -117,7 +117,7 @@ function FixedElements() {
             align="center"
             verticalAlign="middle"
             fontSize={13}
-            fill="#334155"
+            fill="#4a3f30"
           />
         </Group>
       ))}
@@ -182,7 +182,7 @@ export default function Canvas({ stageRef }: CanvasProps) {
   }
 
   return (
-    <div ref={containerRef} className="h-full w-full touch-none overflow-hidden bg-slate-100">
+    <div ref={containerRef} className="h-full w-full touch-none overflow-hidden bg-stone-200">
       <Stage
         ref={stageRef}
         width={size.width}
@@ -199,8 +199,8 @@ export default function Canvas({ stageRef }: CanvasProps) {
           <Line
             points={ROOM_POLYGON_PX.flatMap((p) => [p.x, p.y])}
             closed
-            fill="#ffffff"
-            stroke="#1f2937"
+            fill="#fffaf3"
+            stroke="#57493a"
             strokeWidth={2}
           />
           <FixedElements />
@@ -262,8 +262,8 @@ export default function Canvas({ stageRef }: CanvasProps) {
                   offsetY={deskPx.height / 2}
                   width={deskPx.width}
                   height={deskPx.height}
-                  fill={outOfBounds ? '#fecaca' : '#bfdbfe'}
-                  stroke={selected ? '#2563eb' : outOfBounds ? '#dc2626' : '#3b82f6'}
+                  fill={outOfBounds ? '#fecaca' : '#fde3c2'}
+                  stroke={selected ? '#c2410c' : outOfBounds ? '#dc2626' : '#e08a3e'}
                   strokeWidth={selected ? 3 : 1.5}
                   cornerRadius={4}
                 />
@@ -278,9 +278,9 @@ export default function Canvas({ stageRef }: CanvasProps) {
             rotationSnaps={[]}
             anchorSize={28}
             anchorCornerRadius={14}
-            borderStroke="#2563eb"
-            anchorStroke="#2563eb"
-            anchorFill="#ffffff"
+            borderStroke="#c2410c"
+            anchorStroke="#c2410c"
+            anchorFill="#fffaf3"
             anchorStrokeWidth={2}
           />
         </Layer>

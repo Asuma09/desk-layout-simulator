@@ -61,7 +61,7 @@ function ToolbarButton({
       title={title}
       onClick={onClick}
       disabled={disabled}
-      className="shrink-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
+      className="shrink-0 rounded-md border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40 sm:py-1.5"
     >
       {children}
     </button>
@@ -110,13 +110,13 @@ export default function Toolbar({ stageRef }: ToolbarProps) {
   const atMaxForSelected = selectedTypeStats ? selectedTypeStats.count >= selectedTypeStats.max : false
 
   return (
-    <div className="border-b border-slate-200 bg-white">
+    <div className="border-b border-stone-200 bg-white">
       <div className="flex items-center gap-2 overflow-x-auto px-3 py-2 sm:flex-wrap sm:overflow-visible sm:px-4 sm:py-3">
         <select
           value={deskTypeId}
           onChange={(e) => setDeskTypeId(e.target.value)}
           title="机の種類"
-          className="shrink-0 rounded-md border border-slate-300 bg-white px-2 py-2 text-sm font-medium text-slate-700 shadow-sm sm:py-1.5"
+          className="shrink-0 rounded-md border border-stone-300 bg-white px-2 py-2 text-sm font-medium text-stone-700 shadow-sm sm:py-1.5"
         >
           {DESK_TYPES.map((t) => (
             <option key={t.id} value={t.id}>
@@ -157,19 +157,19 @@ export default function Toolbar({ stageRef }: ToolbarProps) {
           削除
         </ToolbarButton>
 
-        <span className="mx-1 h-6 w-px shrink-0 bg-slate-200" />
+        <span className="mx-1 h-6 w-px shrink-0 bg-stone-200" />
 
         {deskTypeStats.map((t) => (
           <span
             key={t.id}
             title={`${t.label}の最大配置数（固定）`}
-            className="flex shrink-0 items-center gap-1 text-sm font-medium text-slate-700"
+            className="flex shrink-0 items-center gap-1 text-sm font-medium text-stone-700"
           >
             {t.label}上限 {t.max}台
           </span>
         ))}
 
-        <span className="mx-1 h-6 w-px shrink-0 bg-slate-200" />
+        <span className="mx-1 h-6 w-px shrink-0 bg-stone-200" />
 
         <ToolbarButton onClick={undo} disabled={!canUndo} title="Ctrl+Z">
           元に戻す
@@ -178,7 +178,7 @@ export default function Toolbar({ stageRef }: ToolbarProps) {
           やり直し
         </ToolbarButton>
 
-        <span className="mx-1 h-6 w-px shrink-0 bg-slate-200" />
+        <span className="mx-1 h-6 w-px shrink-0 bg-stone-200" />
 
         <ToolbarButton onClick={() => exportPng(stageRef)} title="PNG画像として保存">
           画像出力
@@ -210,17 +210,17 @@ export default function Toolbar({ stageRef }: ToolbarProps) {
           読込
         </ToolbarButton>
 
-        <span className="ml-auto hidden shrink-0 items-center gap-3 text-sm text-slate-600 sm:flex">
-          {message && <span className="text-emerald-600">{message}</span>}
-          <span className="font-medium text-slate-800">
+        <span className="ml-auto hidden shrink-0 items-center gap-3 text-sm text-stone-600 sm:flex">
+          {message && <span className="text-emerald-700">{message}</span>}
+          <span className="font-medium text-stone-800">
             {deskTypeStats.map((t) => `${t.label} ${t.count}/${t.max}`).join('　')} 台
           </span>
         </span>
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-100 px-3 py-1.5 text-sm text-slate-600 sm:hidden">
-        <span className="text-emerald-600">{message}</span>
-        <span className="ml-auto font-medium text-slate-800">
+      <div className="flex items-center justify-between border-t border-stone-100 px-3 py-1.5 text-sm text-stone-600 sm:hidden">
+        <span className="text-emerald-700">{message}</span>
+        <span className="ml-auto font-medium text-stone-800">
           {deskTypeStats.map((t) => `${t.label} ${t.count}/${t.max}`).join('　')} 台
         </span>
       </div>
