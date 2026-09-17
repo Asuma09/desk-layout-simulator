@@ -288,3 +288,5 @@ export const ROOM_BOUNDS_PX = {
 }
 
 export const STORAGE_KEY = 'desk-layout-simulator:layout'
+// イベントごとのレイアウトを保存する一覧のキー（ホーム画面「イベント一覧」機能用）
+export const EVENTS_STORAGE_KEY = 'desk-layout-simulator:events'

@@ -8,14 +8,10 @@ import {
   STORAGE_KEY,
   getDeskTypePx,
 } from './config'
+import { useEventsStore } from './eventsStore'
+import type { Desk } from './types'
 
-export type Desk = {
-  id: string
-  x: number
-  y: number
-  rotation: number
-  typeId: string
-}
+export type { Desk } from './types'
 
 type LayoutState = {
   desks: Desk[]
@@ -24,6 +20,9 @@ type LayoutState = {
   past: Desk[][]
   future: Desk[][]
   dragSnapshot: Desk[] | null
+  // 現在編集中のイベントID（ホーム画面のイベント一覧から開いた場合に設定される）。
+  // nullの場合は従来通り単一の保存先（STORAGE_KEY）を使う。
+  currentEventId: string | null
 
   selectDesk: (id: string | null) => void
   setMaxDeskCount: (typeId: string, count: number) => void
@@ -37,8 +36,10 @@ type LayoutState = {
   endDrag: () => void
   undo: () => void
   redo: () => void
-  saveToStorage: () => void
-  loadFromStorage: () => boolean
+  saveToStorage: () => Promise<void>
+  loadFromStorage: () => Promise<boolean>
+  // イベント一覧から特定のイベントを開く際に、そのイベントのデータで編集状態を初期化する
+  hydrate: (desks: Desk[], maxDeskCounts: Record<string, number>, eventId: string) => void
 }
 
 function snap(value: number, step: number): number {
@@ -63,6 +64,7 @@ export const useLayoutStore = create<LayoutState>((set, get) => ({
   past: [],
   future: [],
   dragSnapshot: null,
+  currentEventId: null,
 
   selectDesk: (id) => set({ selectedId: id }),
 
@@ -183,12 +185,27 @@ export const useLayoutStore = create<LayoutState>((set, get) => ({
     })
   },
 
-  saveToStorage: () => {
-    const { desks, maxDeskCounts } = get()
+  saveToStorage: async () => {
+    const { desks, maxDeskCounts, currentEventId } = get()
+    if (currentEventId) {
+      await useEventsStore.getState().saveEvent(currentEventId, desks, maxDeskCounts)
+      return
+    }
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ desks, maxDeskCounts }))
   },
 
-  loadFromStorage: () => {
+  loadFromStorage: async () => {
+    const { currentEventId } = get()
+    if (currentEventId) {
+      const event = await useEventsStore.getState().getEventById(currentEventId)
+      if (!event) return false
+      commit(set, event.desks)
+      set({
+        selectedId: null,
+        maxDeskCounts: { ...DEFAULT_MAX_DESK_COUNTS, ...event.maxDeskCounts },
+      })
+      return true
+    }
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return false
     try {
@@ -209,5 +226,17 @@ export const useLayoutStore = create<LayoutState>((set, get) => ({
     } catch {
       return false
     }
+  },
+
+  hydrate: (desks, maxDeskCounts, eventId) => {
+    set({
+      desks,
+      maxDeskCounts,
+      currentEventId: eventId,
+      selectedId: null,
+      past: [],
+      future: [],
+      dragSnapshot: null,
+    })
   },
 }))

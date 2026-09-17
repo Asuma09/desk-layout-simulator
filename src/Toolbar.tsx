@@ -3,7 +3,6 @@ import type Konva from 'konva'
 import {
   DEFAULT_DESK_TYPE_ID,
   DESK_TYPES,
-  MAX_DESK_COUNT_LIMIT,
   ROOM_BOUNDS_PX,
 } from './config'
 import { useLayoutStore } from './store'
@@ -83,7 +82,6 @@ export default function Toolbar({ stageRef }: ToolbarProps) {
   const canUndo = useLayoutStore((s) => s.past.length > 0)
   const canRedo = useLayoutStore((s) => s.future.length > 0)
 
-  const setMaxDeskCount = useLayoutStore((s) => s.setMaxDeskCount)
   const addDesk = useLayoutStore((s) => s.addDesk)
   const duplicateSelected = useLayoutStore((s) => s.duplicateSelected)
   const deleteSelected = useLayoutStore((s) => s.deleteSelected)
@@ -162,25 +160,13 @@ export default function Toolbar({ stageRef }: ToolbarProps) {
         <span className="mx-1 h-6 w-px shrink-0 bg-slate-200" />
 
         {deskTypeStats.map((t) => (
-          <label
+          <span
             key={t.id}
-            className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-slate-700"
+            title={`${t.label}の最大配置数（固定）`}
+            className="flex shrink-0 items-center gap-1 text-sm font-medium text-slate-700"
           >
-            {t.label}上限
-            <input
-              type="number"
-              min={1}
-              max={MAX_DESK_COUNT_LIMIT}
-              value={t.max}
-              onChange={(e) => {
-                const value = Number(e.target.value)
-                if (Number.isFinite(value)) setMaxDeskCount(t.id, value)
-              }}
-              title={`${t.label}の最大配置数（イベントごとに設定可能）`}
-              className="w-16 shrink-0 rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-700 shadow-sm sm:py-1.5"
-            />
-            台
-          </label>
+            {t.label}上限 {t.max}台
+          </span>
         ))}
 
         <span className="mx-1 h-6 w-px shrink-0 bg-slate-200" />
@@ -199,18 +185,26 @@ export default function Toolbar({ stageRef }: ToolbarProps) {
         </ToolbarButton>
         <ToolbarButton
           title="レイアウトを保存"
-          onClick={() => {
-            saveToStorage()
-            flash('保存しました')
+          onClick={async () => {
+            try {
+              await saveToStorage()
+              flash('保存しました')
+            } catch (err) {
+              flash(err instanceof Error ? err.message : '保存に失敗しました')
+            }
           }}
         >
           保存
         </ToolbarButton>
         <ToolbarButton
           title="レイアウトを読込"
-          onClick={() => {
-            const ok = loadFromStorage()
-            flash(ok ? '読み込みました' : '保存データがありません')
+          onClick={async () => {
+            try {
+              const ok = await loadFromStorage()
+              flash(ok ? '読み込みました' : '保存データがありません')
+            } catch (err) {
+              flash(err instanceof Error ? err.message : '読込に失敗しました')
+            }
           }}
         >
           読込
