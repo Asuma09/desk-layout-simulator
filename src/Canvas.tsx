@@ -13,8 +13,6 @@ import {
 import { isRectInPolygon } from './geometry'
 import { useLayoutStore } from './store'
 
-const MIN_SCALE = 0.1
-const MAX_SCALE = 4
 const FIT_PADDING = 40
 
 function isOutOfBounds(
@@ -32,10 +30,7 @@ function computeFitView(containerWidth: number, containerHeight: number) {
   const roomHeight = ROOM_BOUNDS_PX.maxY - ROOM_BOUNDS_PX.minY
   const availWidth = Math.max(containerWidth - FIT_PADDING * 2, 50)
   const availHeight = Math.max(containerHeight - FIT_PADDING * 2, 50)
-  const scale = Math.min(
-    Math.max(Math.min(availWidth / roomWidth, availHeight / roomHeight), MIN_SCALE),
-    MAX_SCALE,
-  )
+  const scale = Math.min(availWidth / roomWidth, availHeight / roomHeight)
   return {
     scale,
     pos: {
@@ -43,14 +38,6 @@ function computeFitView(containerWidth: number, containerHeight: number) {
       y: (containerHeight - roomHeight * scale) / 2 - ROOM_BOUNDS_PX.minY * scale,
     },
   }
-}
-
-function touchDistance(t1: Touch, t2: Touch): number {
-  return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
-}
-
-function touchCenter(t1: Touch, t2: Touch): { x: number; y: number } {
-  return { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 }
 }
 
 function SurroundingRooms() {
@@ -146,8 +133,6 @@ export default function Canvas({ stageRef }: CanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const trRef = useRef<Konva.Transformer>(null)
   const deskNodeRefs = useRef<Map<string, Konva.Group>>(new Map())
-  const hasInteractedRef = useRef(false)
-  const pinchRef = useRef<{ dist: number; center: { x: number; y: number } } | null>(null)
   const [size, setSize] = useState({ width: 0, height: 0 })
   const [scale, setScale] = useState(1)
   const [stagePos, setStagePos] = useState({
@@ -176,7 +161,6 @@ export default function Canvas({ stageRef }: CanvasProps) {
   }, [])
 
   useEffect(() => {
-    if (hasInteractedRef.current) return
     if (size.width === 0 || size.height === 0) return
     const fit = computeFitView(size.width, size.height)
     setScale(fit.scale)
@@ -190,70 +174,6 @@ export default function Canvas({ stageRef }: CanvasProps) {
     tr.nodes(node ? [node] : [])
     tr.getLayer()?.batchDraw()
   }, [selectedId, desks])
-
-  const handleWheel = (e: KonvaEventObject<WheelEvent>) => {
-    e.evt.preventDefault()
-    const stage = stageRef.current
-    if (!stage) return
-    hasInteractedRef.current = true
-    const oldScale = scale
-    const pointer = stage.getPointerPosition()
-    if (!pointer) return
-    const mousePointTo = {
-      x: (pointer.x - stagePos.x) / oldScale,
-      y: (pointer.y - stagePos.y) / oldScale,
-    }
-    const direction = e.evt.deltaY > 0 ? -1 : 1
-    const scaleBy = 1.05
-    const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy
-    const clamped = Math.min(Math.max(newScale, MIN_SCALE), MAX_SCALE)
-    setScale(clamped)
-    setStagePos({
-      x: pointer.x - mousePointTo.x * clamped,
-      y: pointer.y - mousePointTo.y * clamped,
-    })
-  }
-
-  const handleTouchMove = (e: KonvaEventObject<TouchEvent>) => {
-    const touches = e.evt.touches
-    if (touches.length < 2) return
-    e.evt.preventDefault()
-    hasInteractedRef.current = true
-    const stage = stageRef.current
-    if (!stage) return
-    if (stage.isDragging()) stage.stopDrag()
-
-    const [t1, t2] = [touches[0], touches[1]]
-    const dist = touchDistance(t1, t2)
-    const stageBox = stage.container().getBoundingClientRect()
-    const rawCenter = touchCenter(t1, t2)
-    const center = { x: rawCenter.x - stageBox.left, y: rawCenter.y - stageBox.top }
-
-    const prev = pinchRef.current
-    if (!prev) {
-      pinchRef.current = { dist, center }
-      return
-    }
-
-    const oldScale = scale
-    const pointTo = {
-      x: (prev.center.x - stagePos.x) / oldScale,
-      y: (prev.center.y - stagePos.y) / oldScale,
-    }
-    const newScale = Math.min(Math.max(oldScale * (dist / prev.dist), MIN_SCALE), MAX_SCALE)
-    setScale(newScale)
-    setStagePos({
-      x: center.x - pointTo.x * newScale,
-      y: center.y - pointTo.y * newScale,
-    })
-    pinchRef.current = { dist, center }
-  }
-
-  const handleTouchEnd = (e: KonvaEventObject<TouchEvent>) => {
-    if (e.evt.touches.length < 2) {
-      pinchRef.current = null
-    }
-  }
 
   const handleStageClick = (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (e.target === e.target.getStage()) {
@@ -271,16 +191,6 @@ export default function Canvas({ stageRef }: CanvasProps) {
         y={stagePos.y}
         scaleX={scale}
         scaleY={scale}
-        draggable
-        onDragEnd={(e) => {
-          if (e.target === e.target.getStage()) {
-            hasInteractedRef.current = true
-            setStagePos({ x: e.target.x(), y: e.target.y() })
-          }
-        }}
-        onWheel={handleWheel}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         onClick={handleStageClick}
         onTap={handleStageClick}
       >
